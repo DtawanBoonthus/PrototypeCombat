@@ -7,11 +7,15 @@ using UnityEngine.InputSystem;
 
 public class Controller : MonoBehaviour
 {
+    [Header("Combat Attack")]
     [SerializeField] private bool useAttackFormatA;
     [SerializeField][Min(0.3f)] private float delayAttack;
     [SerializeField] private float timerResetCombat;
     [SerializeField] private float timerDelayEndAttack;
     [SerializeField] private int maxCombat;
+
+    [Header("Interval Attack")] 
+    private bool isAttack;
 
     [SerializeField] private TextMeshProUGUI countAttackText;
     [SerializeField] private GameObject attackObj;
@@ -66,7 +70,7 @@ public class Controller : MonoBehaviour
         }
         else
         {
-            
+            IntervalAttack();
         }
     }
 
@@ -101,6 +105,11 @@ public class Controller : MonoBehaviour
         }
 
         RotateToLookDirection();
+    }
+
+    private void IntervalAttack()
+    {
+        ShowAttack();
     }
     
     private async void CountAttack()
