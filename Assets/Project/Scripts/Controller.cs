@@ -1,5 +1,4 @@
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -15,7 +14,10 @@ public class Controller : MonoBehaviour
     [SerializeField] private int maxCombat;
 
     [Header("Interval Attack")] 
-    private bool isAttack;
+    private bool isAttack = false; 
+    private bool isCanAttack = true;
+    [SerializeField] private float attackInterval;
+    [SerializeField] private float attackIntervalEnd;
 
     [SerializeField] private TextMeshProUGUI countAttackText;
     [SerializeField] private GameObject attackObj;
@@ -70,12 +72,27 @@ public class Controller : MonoBehaviour
         }
         else
         {
-            IntervalAttack();
+            if (isCanAttack)
+            {
+                IntervalAttack();
+            }
         }
     }
 
-    private void OnAttackIntervalCanceled(InputAction.CallbackContext callback)
+    private async void OnAttackIntervalCanceled(InputAction.CallbackContext callback)
     {
+        isAttack = false;
+        
+        if (!useAttackFormatA)
+        {
+            if (!isCanAttack) return;
+
+            cancellationTokenSource.Cancel();
+            countAttack = 0;
+            isCanAttack = false;
+            await UniTask.WaitForSeconds(attackIntervalEnd);
+            isCanAttack = true;
+        }
     }
 
     private void OnMovePerformed(InputAction.CallbackContext callback)
@@ -107,9 +124,31 @@ public class Controller : MonoBehaviour
         RotateToLookDirection();
     }
 
-    private void IntervalAttack()
+    private async void IntervalAttack()
     {
-        ShowAttack();
+        isAttack = true;
+        
+        cancellationTokenSource = new CancellationTokenSource();
+        
+        while (isAttack)
+        {
+            if (countAttack >= maxCombat)
+            {
+                countAttack = 1;
+            }
+            else
+            {
+                countAttack++;
+            }
+            
+            ShowAttack();
+
+            bool isCancel = await UniTask
+                .WaitForSeconds(attackInterval + 0.3f, cancellationToken: cancellationTokenSource.Token)
+                .SuppressCancellationThrow();
+
+            if (isCancel) break;
+        }
     }
     
     private async void CountAttack()
@@ -125,13 +164,13 @@ public class Controller : MonoBehaviour
         if (countAttack >= maxCombat)
         {
             countAttack = 1;
-            ShowAttack();
         }
         else
         {
             countAttack++;
-            ShowAttack();
         }
+        
+        ShowAttack();
 
         if (countAttack == maxCombat)
         {

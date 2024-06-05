@@ -1243,11 +1243,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 508f6540ef3823747bd6460b4d19f530, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useAttackFormatA: 1
+  useAttackFormatA: 0
   delayAttack: 0.3
   timerResetCombat: 1.5
   timerDelayEndAttack: 0.3
   maxCombat: 3
+  attackInterval: 0.3
+  attackIntervalEnd: 0.8
   countAttackText: {fileID: 1684554226}
   attackObj: {fileID: 811481771}
   isUseMovementA: 0
